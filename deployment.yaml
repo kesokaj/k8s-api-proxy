@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-api-proxy
+  labels:
+    run: k8s-api-proxy
+spec:
+  replicas: 1  # You can adjust the number of replicas if needed
+  selector:
+    matchLabels:
+      run: k8s-api-proxy 
+  template:
+    metadata:
+      labels:
+        run: k8s-api-proxy
+    spec:
+      containers:
+      - name: k8s-api-proxy
+        image: gcr.io/cu33-tops-oyster/k8s-api-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: k8s-api-proxy
+  name: k8s-api-proxy
+  namespace: default
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+spec:
+  ports:
+  - port: 8118
+    protocol: TCP
+    targetPort: 8118
+  selector:
+    run: k8s-api-proxy
+  type: LoadBalancer
